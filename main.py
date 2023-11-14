@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
 import Manager
 import numpy as np
+from time import perf_counter as pf
 
-
-EPOCHS = 50
-MAX_TURNS = 100
+EPOCHS = 100
+MAX_TURNS = 120
+TREASURE_COUNT = 75
 
 def graph(inputs, saveFile = False):
     #make the x axis
@@ -40,14 +41,15 @@ def graph(inputs, saveFile = False):
     
     #save the graph if the value for savefile is set
     if saveFile:
-        fig.savefig(f"Monster Game 2\\saves\\testoflargernet.png")
+        fig.savefig(f"saves\\longtestwith75Treasure(6).png")
     plt.show()
 
-
-
+    
+time = pf()
 m = Manager.Manager()
+stats = m.trainAI(EPOCHS,1,1,0.9,0.2,MAX_TURNS,TREASURE_COUNT)
 
-stats = m.trainAI(EPOCHS,1,1,0.9,0.2,MAX_TURNS)
+print(f'This process took {pf()-time} seconds')
 graph(stats,saveFile=True)
 
 

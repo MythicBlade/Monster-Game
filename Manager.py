@@ -32,12 +32,12 @@ class Manager():
         return validinputs[direction]
         
 
-    def trainAI(self, epochNumber, gamma, inEpsilon, epsilonDecay, minEpsilon, maxTurnCount, showGame = False):
+    def trainAI(self, epochNumber, gamma, inEpsilon, epsilonDecay, minEpsilon, maxTurnCount, treasureCount, showGame = False):
         epsilon = inEpsilon
         model = neural_net.NeuralNet(15,15)
         trainingStats = np.zeros(epochNumber)
         for n in range(epochNumber):
-            game = Game.Game(15,15,75)
+            game = Game.Game(15,15,treasureCount)
             if showGame:
                 # show the game if the flag is set to do that
                 game.printBoard()

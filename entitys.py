@@ -1,14 +1,13 @@
 from numpy import random
 
 class Entity():
-    def __init__(self,xpos, ypos, symbol, number, reward, onehot = 0, artpath = ''):
+    def __init__(self,xpos, ypos, symbol, number, reward, artpath = ''):
         self.xpos = xpos
         self.ypos = ypos
         self.symbol = symbol
         self.number = number
         self.reward = reward
         self.artlpath = artpath
-        self.onehot = onehot
 
     def update(self, direction, magnitude = 1):
         # updates the entity's position based on the direction given
