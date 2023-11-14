@@ -1,10 +1,11 @@
-import keras as ks
+from tensorflow import keras as ks
 from numpy import array
 
 class NeuralNet():
     def __init__(self,xdim, ydim, modelPath = ''):
         if modelPath == '':
             self.model = ks.Sequential([
+                    ks.layers.InputLayer(input_shape=(15,15)),
                     ks.layers.Dense(xdim*ydim, activation='relu'),
                     ks.layers.Dense(xdim*ydim, activation='relu'),
                     ks.layers.Dense(4)])  #One output for each board position#
