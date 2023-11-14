@@ -28,8 +28,8 @@ class Entity():
 
 
 class Monster(Entity):
-    def __init__(self, xpos, ypos, symbol, number, reward, artpath=''):
-        super().__init__(xpos, ypos, symbol, number, reward, artpath)
+    def __init__(self, xpos, ypos, symbol, number, reward, onehot = 0, artpath=''):
+        super().__init__(xpos, ypos, symbol, number, reward, onehot, artpath)
     
     def monsterAI(self):
         # returns the monsters evaluation of all four moves. In this case that is random

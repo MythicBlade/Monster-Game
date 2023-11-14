@@ -47,7 +47,7 @@ def graph(inputs, saveFile = False):
 
 m = Manager.Manager()
 
-stats = m.trainAI(EPOCHS,1,1,0.9,0.2,MAX_TURNS)
+stats = m.trainOneHotAI(EPOCHS,1,1,0.9,0.2,MAX_TURNS)
 graph(stats,saveFile=True)
 
 

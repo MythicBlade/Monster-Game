@@ -16,6 +16,8 @@ class Game():
         self.treasureCount = treasurecount
         self.BoardState = np.zeros((self.xdim,self.ydim),dtype = int)
         self.lastBoardState = np.zeros((self.xdim,self.ydim),dtype = int)
+        self.onehotBoardState = np.zeros((self.xdim,self.ydim,3),dtype = int)
+        self.lastOnehotBoardState = np.zeros((self.xdim,self.ydim,3),dtype = int)
         self.moveList = []
         self.turnCount = 0
         self.debugmode = debugMode
@@ -29,19 +31,19 @@ class Game():
         #set up the treasures
         for n in range(self.treasureCount):
             pos = self.randomEmptyLocation()
-            treasure = entitys.Entity(pos[0],pos[1],f'{Colors.YELLOW}T{Colors.END}',3,0.1)
+            treasure = entitys.Entity(pos[0],pos[1],f'{Colors.YELLOW}T{Colors.END}',3,0.1,onehot=np.array([0,0,1]))
             self.entityList.append(treasure)
             self.entityLocationList.append(pos)
         
         #set up the player
         pos = self.randomEmptyLocation()
-        self.player = entitys.Entity(pos[0],pos[1],f'{Colors.BLUE}{Colors.BOLD}H{Colors.END}',1,0)
+        self.player = entitys.Entity(pos[0],pos[1],f'{Colors.BLUE}{Colors.BOLD}H{Colors.END}',1,0,onehot=np.array([1,0,0]))
         self.entityList.append(self.player)
         self.entityLocationList.append(pos)
 
         #set up the Monster
         pos = self.randomEmptyLocation()
-        self.monster = entitys.Monster(pos[0],pos[1],f'{Colors.RED}M{Colors.END}',2,-1)
+        self.monster = entitys.Monster(pos[0],pos[1],f'{Colors.RED}M{Colors.END}',2,-1,onehot=np.array([0,1,0]))
         self.entityList.append(self.monster)
         self.entityLocationList.append(pos)
 
@@ -67,13 +69,21 @@ class Game():
         self.BoardState = np.zeros((self.xdim,self.ydim),dtype = int)
         for a in self.entityList:
             self.BoardState[a.xpos][a.ypos] = a.number
+
+    def updateOnehotBoardstate(self):
+        # makes an updates boardstate using the data from entities
+        # the 
+        self.lastOnehotBoardState = self.onehotBoardState
+        self.onehotBoardState = np.zeros((self.xdim,self.ydim,3),dtype = int)
+        for a in self.entityList:
+            self.onehotBoardState[a.xpos][a.ypos] = a.onehot
     
     def entitySymbolDict(self):
         # creates a dictionary of numbers and the corresponding symbols for entities
         for a in self.entityList:
             if a.number not in self.symbolDict:
                 self.symbolDict[a.number] = a.symbol
-
+            
     def printBoard(self):
         #prints out the board to terminal
         for y in range(self.ydim):
@@ -122,6 +132,27 @@ class Game():
                 self.gameEnding = 1
         self.moveList.append(direction)
         self.turnCount += 1
+        self.updateBoardstate()
+        return collision[0]
+    
+    def updateOneHotGame(self, direction):
+        #moves player if not near wall
+        if self.checklegalmoves(self.player.xpos, self.player.ypos)[direction] == 1:
+            self.player.update(direction)
+        #moves monster
+        self.monster.update(np.argmax(self.monster.monsterAI() * self.checklegalmoves(self.monster.xpos,self.monster.ypos)))
+        #check collision
+        collision = self.collisionCheck()
+        if collision[0] == -1:
+            self.gameEnding = -1
+        if collision[0] == 0.1:
+            self.score += 1
+            del self.entityList[collision[1]]
+            if len(self.entityList) <= 2:
+                self.gameEnding = 1
+        self.moveList.append(direction)
+        self.turnCount += 1
+        self.updateOnehotBoardstate()
         self.updateBoardstate()
         return collision[0]
     

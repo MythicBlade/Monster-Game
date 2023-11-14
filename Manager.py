@@ -32,7 +32,7 @@ class Manager():
         return validinputs[direction]
         
 
-    def trainAI(self, epochNumber, gamma, inEpsilon, epsilonDecay, minEpsilon, maxTurnCount, showGame = False):
+    def trainAI(self, epochNumber, gamma, inEpsilon, epsilonDecay, minEpsilon, maxTurnCount, showGame = False, onehot = True):
         epsilon = inEpsilon
         model = neural_net.NeuralNet(15,15)
         trainingStats = np.zeros(epochNumber)
@@ -54,6 +54,7 @@ class Manager():
 
                 # update the game
                 reward = game.updateGame(np.argmax(choice))
+                
                 # calculate the evaluation for our program to train on unless it won or died
                 if game.gameEnding in [1,-1]:
                     gameReward = game.gameEnding
@@ -63,6 +64,51 @@ class Manager():
                 choice[game.moveList[-1]] = gameReward
                 # train the Model
                 model.updateModel(game.lastBoardState, choice)
+                # check if the game is over
+                if game.turnCount >= maxTurnCount:
+                    gameOver = True
+                if game.gameEnding != 0:
+                    gameOver = True
+                if showGame:
+                # show the game if the flag is set to do that
+                    game.printBoard()
+            #print out the score so we know how it's going
+            print(f'The Score for game {n} was {game.score}.')
+            trainingStats[n] = game.score
+        return trainingStats
+    
+    def trainOneHotAI(self, epochNumber, gamma, inEpsilon, epsilonDecay, minEpsilon, maxTurnCount, showGame = False):
+        epsilon = inEpsilon
+        model = neural_net.NeuralNet(15,15)
+        trainingStats = np.zeros(epochNumber)
+        for n in range(epochNumber):
+            game = Game.Game(15,15,75)
+            if showGame:
+                # show the game if the flag is set to do that
+                game.printBoard()
+            gameOver = False
+            while not gameOver:
+                if np.random.random() <= epsilon:
+                    # exploration or random choices
+                    choice = np.random.rand(4)
+                else:
+                    # exploitation or choosing the best options
+                    choice = model.modelEvaluation(game.lastOnehotBoardState)
+                # update epsilon
+                epsilon = max(epsilon * epsilonDecay, minEpsilon)
+
+                # update the game
+                reward =  game.updateOneHotGame(np.argmax(choice))
+                
+                # calculate the evaluation for our program to train on unless it won or died
+                if game.gameEnding in [1,-1]:
+                    gameReward = game.gameEnding
+                else:
+                    gameReward = reward + gamma + np.max(model.modelEvaluation(game.onehotBoardState))
+                # setup the q values for training
+                choice[game.moveList[-1]] = gameReward
+                # train the Model
+                model.updateModel(game.lastOnehotBoardState, choice)
                 # check if the game is over
                 if game.turnCount >= maxTurnCount:
                     gameOver = True
