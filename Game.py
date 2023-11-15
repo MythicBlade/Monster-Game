@@ -4,7 +4,7 @@ from json import dump
 from color import Colors
 
 class Game():
-    def __init__(self, xdim, ydim, treasurecount, seed = None, debugMode = False):
+    def __init__(self, xdim, ydim, treasurecount, seed = None, debugMode = False,monsterExists = True):
         # seed the rng for saving or use the provided seed
         if seed == None:
             self.seed = np.random.seed(np.random.randint(100000000))
@@ -19,6 +19,7 @@ class Game():
         self.moveList = []
         self.turnCount = 0
         self.debugmode = debugMode
+        self.monsterExists = monsterExists
         self.score = 0 
         self.gameEnding = 0
         self.symbolDict = {0:'.'}
@@ -40,10 +41,12 @@ class Game():
         self.entityLocationList.append(pos)
 
         #set up the Monster
-        pos = self.randomEmptyLocation()
-        self.monster = entitys.Monster(pos[0],pos[1],f'{Colors.RED}M{Colors.END}',2,-1)
-        self.entityList.append(self.monster)
-        self.entityLocationList.append(pos)
+        
+        if self.monsterExists:
+            pos = self.randomEmptyLocation()
+            self.monster = entitys.Monster(pos[0],pos[1],f'{Colors.RED}M{Colors.END}',2,-1)
+            self.entityList.append(self.monster)
+            self.entityLocationList.append(pos)
 
         # Update the boardstate
         self.updateBoardstate()
@@ -109,8 +112,9 @@ class Game():
         #moves player if not near wall
         if self.checklegalmoves(self.player.xpos, self.player.ypos)[direction] == 1:
             self.player.update(direction)
-        #moves monster
-        self.monster.update(np.argmax(self.monster.monsterAI() * self.checklegalmoves(self.monster.xpos,self.monster.ypos)))
+        if self.monsterExists:
+            #moves monster
+            self.monster.update(np.argmax(self.monster.monsterAI() * self.checklegalmoves(self.monster.xpos,self.monster.ypos)))
         #check collision
         collision = self.collisionCheck()
         if collision[0] == -1:
