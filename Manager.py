@@ -36,6 +36,11 @@ class Manager():
         epsilon = inEpsilon
         model = neural_net.NeuralNet(xdim,ydim,)
         trainingStats = np.zeros(epochNumber)
+        trainingmax = 4
+        trainingcount = 0
+        targetreset = 100
+        targetresetcount = 0
+        newq_values = []
         for n in range(epochNumber):
             game = Game.Game(xdim,ydim,treasureCount,monsterExists=monsterExists)
             if showGame:
@@ -58,11 +63,17 @@ class Manager():
                 if game.gameEnding in [1,-1]:
                     gameReward = game.gameEnding
                 else:
-                    gameReward = reward + gamma + np.max(model.modelEvaluation(game.BoardState))
+                    gameReward = reward + (gamma * np.max(model.modelEvaluation(game.BoardState)))
                 # setup the q values for training
                 choice[game.moveList[-1]] = gameReward
+                #update the q table
+                newq_values.append((game.lastBoardState,choice))
                 # train the Model
-                model.updateModel(game.lastBoardState, choice)
+                trainingcount += 1
+                if trainingcount >= trainingmax:
+                    print(trainingcount)
+                    model.updateModel(game.lastBoardState, choice)
+                    trainingcount = 0
                 # check if the game is over
                 if game.turnCount >= maxTurnCount:
                     gameOver = True

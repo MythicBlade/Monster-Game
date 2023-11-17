@@ -3,7 +3,7 @@ from numpy import average
 from time import perf_counter as pf
 from DataHandler import Data
 
-EPOCHS = 50
+EPOCHS = 5
 MAX_TURNS = 100
 TREASURE_COUNT = 70
 XDIM = 10
@@ -19,7 +19,7 @@ avg = average(stats)
 print(f'The average is {avg}')
 print(f'This process took {timeEnd-timeStart} seconds')
 print(f'This process took {(timeEnd-timeStart)/60} minutes')
-Data(stats,timeStart,timeEnd,EPOCHS,saveData=True,message='testwithnoMonster')
+Data(stats,timeStart,timeEnd,EPOCHS,saveData=True,message='test_with_maybe_fixed_Qlearn3')
 
 
 
